@@ -37,7 +37,7 @@ TableHashage tablehashage_creer(int size)
   assert(size >= 1);
   TableHashage table = {size, NULL};
 
-  /* Allocation de la mémoire */
+  // Allocation de la mémoire
   table.vals = calloc(size, sizeof(Entree*));
   if(!table.vals)
     {
@@ -63,9 +63,9 @@ unsigned int convertir_chaine(TableHashage table, char *cle)
 
   while(index < ULONG_MAX && i < strlen(cle))
     {
-      index = index << 8;
-      index += cle[i];
-      i++;
+      index = index << 8; // decalage de 8 bits
+      index += cle[i]; // ajout d'un char
+      ++i;
     }
 
   return index % table.size;
@@ -83,11 +83,14 @@ unsigned int convertir_chaine(TableHashage table, char *cle)
 Entree *entree_creer(char *cle, int val) {
   Entree *nouv;
 
+  // allocation
   if(!(nouv = calloc(1, sizeof(Entree))))
     {
       printf("Erreur d'allocation dynamique\n");
       exit(1);
     }
+
+  // copie des valeurs
   strcpy(nouv->cle, cle);
   nouv->val = val;
 
@@ -194,6 +197,51 @@ void tablehashage_afficher(TableHashage table)
     }
 }
 
+/** Nom de la fonction :  tablehashage_supprimer
+  * Entrées :
+  *   TableHashage table : Table de hashage
+  *   cle : Une clé
+  * Sorties :
+  *   int succes : Indique le succes de la suppression
+  * Description :
+  *   Supprime une entrée de la table de hashage
+  */
+int tablehashage_supprimer(TableHashage table, char *cle)
+{
+  int indice = convertir_chaine(table, cle);
+  Entree *liste = table.vals[indice];
+
+  if(!liste) // Cet emplacement est vide
+    return 0;
+  else // Cet emplacement contient une liste
+    {
+      Entree *courant = liste;
+      if(strcmp(liste->cle, cle) == 0) // se trouve en tete de la liste
+        {
+          table.vals[indice] = liste->suiv;
+          free(courant);
+        }
+      else // Parcourir la liste
+        {
+          Entree *precedent = NULL;
+          while(courant && strcmp(liste->cle, cle) != 0)
+            {
+              precedent = courant;
+              courant = courant->suiv;
+            }
+
+          if(courant) // Entrée trouvée
+            {
+              precedent->suiv = precedent->suiv->suiv;
+              free(courant);
+            }
+          else return 0; // Non trouvée
+        }
+    }
+
+  return 1;
+}
+
 int main()
 {
 
@@ -221,10 +269,10 @@ int main()
       printf("-------------------------------\n\n");
       switch(choix)
         {
-        case 1:
+        case 1: // Afficher la table
           tablehashage_afficher(table);
           break;
-        case 2:
+        case 2: // Inserer une valeur
           {
             int valeur;
             char cle[TAILLE_CLE];
@@ -237,12 +285,17 @@ int main()
             tablehashage_inserer(table, cle, valeur);
             break;
           }
-        case 3:
+        case 3: // Supprimer une valeur
           {
-            // Pas de fonction de Suppression !!
+            char cle[100];
+            printf("Clé : ");
+            while(getchar() != '\n');
+            scanf("%[^\n]", cle);
+            if(!tablehashage_supprimer(table, cle))
+              printf("Clé inexistante.\n");
             break;
           }
-        case 4:
+        case 4: // Acceder a une valeur
           {
             char cle[TAILLE_CLE];
             printf("Clé : ");

@@ -169,6 +169,12 @@ Entree* tablehashage_acceder(TableHashage table, char *cle)
   return pair;
 }
 
+/** Nom de la fonction : tablehashage_afficher
+  * Entrées :
+  *   TableHashage table : Une table de hashage.
+  * Description :
+  *   Affiche le contenu de ma table de hashage.
+  */
 void tablehashage_afficher(TableHashage table)
 {
   int i;
@@ -186,7 +192,6 @@ void tablehashage_afficher(TableHashage table)
             }
         }
     }
-
 }
 
 int main()

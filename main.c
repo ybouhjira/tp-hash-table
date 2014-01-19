@@ -21,7 +21,7 @@ typedef struct Entree
 typedef struct TableHashage
 {
   int size;
-  struct Entree **vals;
+  struct Entree* *vals;
 }TableHashage;
 
 /** Nom de la fonction : tablehashage_creer
@@ -38,7 +38,8 @@ TableHashage tablehashage_creer(int size)
   TableHashage table = {size, NULL};
 
   /* Allocation de la mémoire */
-  if(!(table.vals = calloc(size ,sizeof(Entree))))
+  table.vals = calloc(size, sizeof(Entree*));
+  if(!table.vals)
     {
       printf("Erreur d'allocation de mémoire\n");
       exit(1);
@@ -70,7 +71,15 @@ unsigned int convertir_chaine(TableHashage table, char *cle)
   return index % table.size;
 }
 
-/* Create a key-value pair. */
+/** Nom de la fonction : entree_creer
+  * Entrées :
+  *   char *cle : La clé
+  *   int val : La valeur
+  * Sorties :
+  *   Entree nouv : L'entrée creée
+  * Description :
+  *   Crée une Entree en allouant de la mémoire avec malloc
+  */
 Entree *entree_creer(char *cle, int val) {
   Entree *nouv;
 
@@ -93,7 +102,7 @@ Entree *entree_creer(char *cle, int val) {
   * Description :
   *   insere une valeur dans la table de hashage
   */
-void ht_set(TableHashage table, char *cle, int val) {
+void tablehashage_inserer(TableHashage table, char *cle, int val) {
   assert(cle);
 
   int indice = 0;
@@ -134,38 +143,113 @@ void ht_set(TableHashage table, char *cle, int val) {
     }
 }
 
-/* Retrieve a key-value pair from a hash table. */
-int ht_get(TableHashage table, char *key) {
-  int bin = 0;
+/** Nom de la fonction : tablehashage_acceder
+  * Entrées :
+  *   TableHashage table : Une table de hashage
+  *   char *cle : Une clé
+  * Sorties :
+  *   int pair : L'entrée contenant la valeur recherché
+  * Description :
+  *   Retourne l'entrée contenant la valeur qui la clé cle ou NULL
+  * si elle n'existe pas.
+  */
+Entree* tablehashage_acceder(TableHashage table, char *cle)
+{
+  int indice = 0;
   Entree *pair;
 
-  bin = convertir_chaine(table, key);
+  indice = convertir_chaine(table, cle);
 
-  /* Step through the bin, looking for our value. */
-  pair = table.vals[bin];
-  while(pair && strcmp(key, pair->cle) > 0) pair = pair->suiv;
+  // Parcourir la liste chainée
+  pair = table.vals[indice];
+  while(pair && strcmp(cle, pair->cle) > 0) pair = pair->suiv;
 
-  /* Did we actually find anything? */
-  if(!pair && strcmp(key, pair->cle) != 0)
-    return 0;
-  else
-    return pair->val;
+  // Test si on a retrouvé la valeur
+  if(!pair || strcmp(cle, pair->cle) != 0) return NULL;
+  return pair;
 }
 
+void tablehashage_afficher(TableHashage table)
+{
+  int i;
+  for(i = 0; i<table.size; ++i)
+    {
+      if(table.vals[i])
+        {
+          // Parcourir la liste chainée
+          Entree *courant = table.vals[i];
+
+          while(courant)
+            {
+              printf("\"%s\" : %d\n", table.vals[i]->cle, table.vals[i]->val);
+              courant = courant->suiv;
+            }
+        }
+    }
+
+}
 
 int main()
 {
-  TableHashage hashtable = tablehashage_creer(65536);
 
-  ht_set(hashtable, "key1", 1);
-  ht_set(hashtable, "key2", 2);
-  ht_set(hashtable, "key3", 5);
-  ht_set(hashtable, "key4", 4);
+  int taille = 0;
+  while(taille < 1)
+    {
+      printf("Taille de la table : ");
+      scanf("%d", &taille);
+    }
 
-  printf("%d\n", ht_get(hashtable, "key1"));
-  printf("%d\n", ht_get(hashtable, "key2"));
-  printf("%d\n", ht_get(hashtable, "key3"));
-  printf("%d\n", ht_get(hashtable, "key4"));
+  TableHashage table = tablehashage_creer(taille);
 
+  int choix = 1;
+
+  while(1 <= choix && choix <= 4)
+    {
+      printf("\nMenu --------------------------\n"
+             "    1 - Afficher la table\n"
+             "    2 - Insérer une valeur\n"
+             "    3 - Supprimer une valeur\n"
+             "    4 - Accéder à une valeur\n"
+             "Autre - Quitter\n"
+             "Choix : ");
+      scanf("%d", &choix);
+      printf("-------------------------------\n\n");
+      switch(choix)
+        {
+        case 1:
+          tablehashage_afficher(table);
+          break;
+        case 2:
+          {
+            int valeur;
+            char cle[TAILLE_CLE];
+            printf("Clé : ");
+            while(getchar() != '\n');
+            scanf("%[^\n]s", cle);
+            printf("Valeur : ");
+            scanf("%d", &valeur);
+
+            tablehashage_inserer(table, cle, valeur);
+            break;
+          }
+        case 3:
+          {
+            // Pas de fonction de Suppression !!
+            break;
+          }
+        case 4:
+          {
+            char cle[TAILLE_CLE];
+            printf("Clé : ");
+            while(getchar() != '\n');
+            scanf("%[^\n]s", cle);
+
+            Entree *entree = tablehashage_acceder(table, cle);
+            if(entree) printf("Valeur : %d\n", entree->val);
+            else printf("Aucune valeur ne correspond a cette clé\n");
+            break;
+          }
+        }
+    }
   return 0;
 }

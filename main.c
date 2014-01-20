@@ -5,6 +5,7 @@
 #include <assert.h>
 
 #define TAILLE_CLE 100
+
 /**
   * Une entrée dans le table de hashage
   */
@@ -180,6 +181,7 @@ Entree* tablehashage_acceder(TableHashage table, char *cle)
   */
 void tablehashage_afficher(TableHashage table)
 {
+  printf("┌──────┬────────┐\n│Clé   │Valeur   │\n├──────┼────────┤\n");
   int i;
   for(i = 0; i<table.size; ++i)
     {
@@ -190,7 +192,7 @@ void tablehashage_afficher(TableHashage table)
 
           while(courant)
             {
-              printf("\"%s\" : %d\n", table.vals[i]->cle, table.vals[i]->val);
+              printf("│%20s│%20d│\n", table.vals[i]->cle, table.vals[i]->val);
               courant = courant->suiv;
             }
         }
@@ -258,15 +260,17 @@ int main()
 
   while(1 <= choix && choix <= 4)
     {
-      printf("\nMenu --------------------------\n"
-             "    1 - Afficher la table\n"
-             "    2 - Insérer une valeur\n"
-             "    3 - Supprimer une valeur\n"
-             "    4 - Accéder à une valeur\n"
-             "Autre - Quitter\n"
-             "Choix : ");
+      printf("\x1b[1;36m\n"
+             "╔══════════════════════════════════════╗ \n"
+             "║    1 - Afficher la table             ║\n"
+             "║    2 - Insérer une valeur            ║\n"
+             "║    3 - Supprimer une valeur          ║\n"
+             "║    4 - Accéder à une valeur          ║\n"
+             "║Autre - Quitter                       ║\n"
+             "\x1b[0m Choix : ");
       scanf("%d", &choix);
-      printf("-------------------------------\n\n");
+      printf("\x1b[1;36m"
+             "╚══════════════════════════════════════╝\x1b[0m\n");
       switch(choix)
         {
         case 1: // Afficher la table
@@ -292,7 +296,7 @@ int main()
             while(getchar() != '\n');
             scanf("%[^\n]", cle);
             if(!tablehashage_supprimer(table, cle))
-              printf("Clé inexistante.\n");
+              printf("\x1b[1;37;41mClé inexistante.\n\x1b[0m");
             break;
           }
         case 4: // Acceder a une valeur

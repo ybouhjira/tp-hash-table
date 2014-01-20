@@ -60,8 +60,8 @@ unsigned int convertir_chaine(TableHashage table, char *cle)
 {
   unsigned int index;
   unsigned int i = 0;
-
-  while(index < ULONG_MAX && i < strlen(cle))
+  unsigned int len = strlen(cle);
+  while(index < ULONG_MAX && i < len)
     {
       index = index << 8; // decalage de 8 bits
       index += cle[i]; // ajout d'un char
@@ -190,7 +190,10 @@ void tablehashage_afficher(TableHashage table)
 
           while(courant)
             {
-              printf("\"%s\" : %d\n", table.vals[i]->cle, table.vals[i]->val);
+              printf("%d :\"%s\" : %d\n",
+                     i,
+                     table.vals[i]->cle,
+                     table.vals[i]->val);
               courant = courant->suiv;
             }
         }

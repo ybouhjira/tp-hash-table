@@ -58,7 +58,7 @@ TableHashage tablehashage_creer(int size)
   */
 unsigned int convertir_chaine(TableHashage table, char *cle)
 {
-  unsigned int index;
+  unsigned int index = 0;
   unsigned int i = 0;
   unsigned int len = strlen(cle);
   while(index < ULONG_MAX && i < len)
@@ -192,8 +192,8 @@ void tablehashage_afficher(TableHashage table)
             {
               printf("%d :\"%s\" : %d\n",
                      i,
-                     table.vals[i]->cle,
-                     table.vals[i]->val);
+                     courant->cle,
+                     courant->val);
               courant = courant->suiv;
             }
         }
@@ -281,7 +281,12 @@ int main()
             char cle[TAILLE_CLE];
             printf("Clé : ");
             while(getchar() != '\n');
-            scanf("%[^\n]s", cle);
+            gets(cle);
+            if(!strlen(cle))
+              {
+                printf("Clé vide.");
+                break;
+              }
             printf("Valeur : ");
             scanf("%d", &valeur);
 
@@ -293,7 +298,12 @@ int main()
             char cle[100];
             printf("Clé : ");
             while(getchar() != '\n');
-            scanf("%[^\n]", cle);
+            gets(cle);
+            if(!strlen(cle))
+              {
+                printf("Clé vide.");
+                break;
+              }
             if(!tablehashage_supprimer(table, cle))
               printf("Clé inexistante.\n");
             break;
@@ -303,7 +313,12 @@ int main()
             char cle[TAILLE_CLE];
             printf("Clé : ");
             while(getchar() != '\n');
-            scanf("%[^\n]s", cle);
+            gets(cle);
+            if(!strlen(cle))
+              {
+                printf("Clé vide.");
+                break;
+              }
 
             Entree *entree = tablehashage_acceder(table, cle);
             if(entree) printf("Valeur : %d\n", entree->val);
